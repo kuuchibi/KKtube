@@ -1,0 +1,56 @@
+index.html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>オリジナル動画サイト</title>
+    <style>
+        /* 見た目を少し整えるためのCSS */
+        body { font-family: sans-serif; padding: 20px; text-align: center; }
+        .video-card { margin-top: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>シネマ検索アプリ</h1>
+    <button onclick="searchVideo()">映画の動画を探す</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function searchVideo() {
+            // 検索したいキーワードを設定します
+            const query = "ナイト ミュージアム";
+            
+            // YouTubeの代わりにデータを中継してくれるAPI（Invidious）を使います
+            const apiUrl = `https://vid.puffyan.us/api/v1/search?q=${query}`;
+
+            // 検索中であることを画面に表示
+            document.getElementById("results").innerHTML = "<p>検索中...</p>";
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById("results");
+                    
+                    // 一番上の検索結果を取得
+                    const firstVideo = data[0];
+                    
+                    // 学校の制限を回避するため、YouTubeではなく中継サーバーの動画プレイヤーを使います
+                    resultsDiv.innerHTML = `
+                        <div class="video-card">
+                            <h3>${firstVideo.title}</h3>
+                            <iframe width="560" height="315" 
+                                src="https://vid.puffyan.us/embed/${firstVideo.videoId}" 
+                                frameborder="0" allowfullscreen>
+                            </iframe>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    document.getElementById("results").innerHTML = "<p>読み込みに失敗しました。</p>";
+                });
+        }
+    </script>
+</body>
+</html>
